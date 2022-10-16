@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.models import User
+from users.models import User, Customer
 from common.serializers import ThumbnailerJSONSerializer
 
 
@@ -17,12 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_number',
             'profile_picture',
         )
-        read_only_fields = ('username',)
+        read_only_fields = ('username', 'email',)
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
     profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='users')
-    sex = serializers.CharField(max_length=15)
+    sex = serializers.CharField(max_length=15, allow_blank=True, required=False)
     tokens = serializers.SerializerMethodField()
 
     def get_tokens(self, user):
@@ -32,20 +32,23 @@ class CreateUserSerializer(serializers.ModelSerializer):
         # call create_user on user object. Without this
         # the password will be stored in plain text.
         user = User.objects.create_user(**validated_data)
+
+        # Create customer temporary until use signal
+        Customer.objects.create(user=user, sex=validated_data['sex'])
+
         return user
 
     class Meta:
         model = User
         fields = (
             'id',
-            'username',
             'email',
             'phone_number',
             'password',
             'first_name',
             'last_name',
-            'tokens',
             'sex',
+            'tokens',
             'profile_picture',
         )
         read_only_fields = ('tokens',)

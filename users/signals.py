@@ -8,6 +8,7 @@ from .models import Customer
 def create_customer_profile(sender, instance, created, **kwargs):
     if created:
         Customer.objects.create(user=instance, sex="male")
+        print("Customer created")
 
 
 @receiver(post_save, sender=User)
