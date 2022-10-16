@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from users.models import User
 from common.serializers import ThumbnailerJSONSerializer
+from .signals import create_customer_profile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,6 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CreateUserSerializer(serializers.ModelSerializer):
     profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='users')
+    sex = serializers.CharField(max_length=15)
     tokens = serializers.SerializerMethodField()
 
     def get_tokens(self, user):
@@ -44,6 +46,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'tokens',
+            'sex',
             'profile_picture',
         )
         read_only_fields = ('tokens',)
