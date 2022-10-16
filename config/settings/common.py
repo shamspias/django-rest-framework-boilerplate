@@ -39,9 +39,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'users',
-    'common',
-    'notifications',
+    'users.apps.UsersConfig',
+    'common.apps.CommonConfig',
+    'notifications.apps.NotificationsConfig',
 
 ]
 
