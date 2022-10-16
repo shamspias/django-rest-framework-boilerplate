@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from users.models import User
 from common.serializers import ThumbnailerJSONSerializer
-from .signals import create_customer_profile
 
 
 class UserSerializer(serializers.ModelSerializer):
