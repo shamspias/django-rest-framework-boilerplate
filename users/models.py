@@ -1,4 +1,5 @@
 import uuid
+import re
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser
@@ -11,6 +12,8 @@ from easy_thumbnails.signal_handlers import generate_aliases_global
 
 from common.helpers import build_absolute_uri
 from notifications.services import notify, ACTIVITY_USER_RESETS_PASS
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import BaseUserManager
 
 
 @receiver(reset_password_token_created)
@@ -29,10 +32,44 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     notify(ACTIVITY_USER_RESETS_PASS, context=context, email_to=[reset_password_token.user.email])
 
 
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError('Users require an email field')
+        email = self.normalize_email(email)
+        user = self.model(username=email, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone_number = models.CharField(max_length=35, blank=True, null=True)
+    phone_number = models.CharField(_("phone number"), max_length=35, blank=True, null=True)
     profile_picture = ThumbnailerImageField('ProfilePicture', upload_to='profile_pictures/', blank=True, null=True)
+    email = models.EmailField(_("email address"), unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     def get_tokens(self):
         refresh = RefreshToken.for_user(self)
@@ -56,8 +93,8 @@ class Customer(models.Model):
         ("other", "other"),
     )
     user = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE)
-    date_of_birth = models.DateField(blank=True, null=True)
-    sex = models.CharField(max_length=10, blank=True, null=True, choices=CHOICE_SEX)
+    date_of_birth = models.DateField(_("date of birth"), blank=True, null=True)
+    sex = models.CharField(_("sex"), max_length=10, blank=True, null=True, choices=CHOICE_SEX)
 
     def __str__(self):
         return self.user.email
