@@ -1,6 +1,6 @@
-import os
 from pathlib import Path
 import sentry_sdk
+import os
 
 from datetime import timedelta
 from corsheaders.defaults import default_headers
@@ -27,9 +27,14 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'channels',
     'corsheaders',  # Cross Origin
+
+    'easy_thumbnails',  # image lib
 ]
 
 LOCAL_APPS = [
+    'users',
+    'common',
+    'notifications',
 
 ]
 
