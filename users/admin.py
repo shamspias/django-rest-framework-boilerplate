@@ -8,7 +8,7 @@ from users.models import User, Customer
 @admin.register(User)
 class UserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('email', 'password')}),
         (
             _('Personal info'),
             {
