@@ -1,75 +1,93 @@
-# ZZAZZO BackEnd
+# Django Rest Framework boilerplate Update
 
-# Technology
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-* Database: Postgres SQL
-* Language: Python3
-* Framework: Django Rest Framework
-* Task Scheduling: Celery
+This is boilerplate for starting fresh new DRF projects. It's built using [cookiecutter-django-rest](https://github.com/agconti/cookiecutter-django-rest).
 
-# How to run in local
+## Highlights
 
-Clone the project
-    
-    git clone -b zzazzo-backend https://github.com/zzazzo-limited/zzazzo.git
+- Modern Python development with Python 3.8+
+- Bleeding edge Django 4.1+
+- Fully dockerized, local development via docker-compose.(On Going)
+- PostgreSQL
+- Full test coverage, continuous integration, and continuous deployment.(On Going)
+- Celery tasks
 
-Then open terminal/cmd
+### Features built-in
 
-    cd zzazzo_backend
+- JSON Web Token authentication using [Simple JWT](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/)
+- Social (FB + G+) signup/sigin
+- API Throttling enabled
+- Password reset endpoints
+- User model with profile picture field using Easy Thumbnails
+- Files management (thumbnails generated automatically for images)
+- Sentry setup
+- Swagger API docs out-of-the-box
+- Code formatter [black](https://black.readthedocs.io/en/stable/)
+- Tests (with mocking and factories) with code-coverage support
 
-make **.env** file based on **example.env**
+## API Docs
 
-make virtual env folder
+API documentation is automatically generated using Swagger. You can view documention by visiting this [link](http://localhost:8000/swagger).
 
-for windows
+## Prerequisites
 
-    python -m venv venv
+If you are familiar with Docker, then you just need [Docker](https://docs.docker.com/docker-for-mac/install/). If you don't want to use Docker, then you just need Python3 and Postgres installed.
 
-for linux/mac
+## Local Development with Docker
 
-    sudo apt install python3-venv -y
-    python3 -m venv venv
+Start the dev server for local development:
 
-after that active virtual environments
+```bash
+cp .env.dist .env
+docker-compose up
+```
 
-for windows
+Run a command inside the docker container:
 
-    . venv/Scripts/activate
+```bash
+docker-compose run --rm web [command]
+```
 
-for Linux/mac
+## Local Development without Docker
 
-    . venv/bin/activate
+### Install
 
-then install all requirements
+```bash
+python3 -m venv env && source env/bin/activate                # activate venv
+cp .env.dist .env                                             # create .env file and fill-in DB info
+pip install -r requirements.txt                               # install py requirements
+./manage.py migrate                                           # run migrations
+./manage.py collectstatic --noinput                           # collect static files
+redis-server                                                  # run redis locally for celery
+celery -A src.config worker --beat --loglevel=debug
+  --pidfile="./celerybeat.pid"
+  --scheduler django_celery_beat.schedulers:DatabaseScheduler # run celery beat and worker
+```
 
-    pip install -r requirements.txt
+### Run dev server
 
-after that test db connection nd other error using dry migration
+This will run server on [http://localhost:8000](http://localhost:8000)
 
-    python manage.py makemigrations --check --dry-run
+```bash
+./manage.py runserver
+```
 
-if everything is ok then run migrations
+### Create superuser
 
-    python manage.py makemigrations
+If you want, you can create initial super-user with next commad:
 
-Then migrate
+```bash
+./manage.py createsuperuser
+```
 
-    python manage.py migrate
+### Running Tests
 
-then create a directory name static_local
+To run all tests with code-coverate report, simple run:
 
-    mkdir static_local
+```bash
+./manage.py test
+```
 
-Then use collect static
 
-    python manage.py collectstatic
-
-after that create a superuser
-
-    python manage.py createsuperuser
-
-give information for superuser and after creating superuser you are full free to run test local server
-
-just use
-
-    python manage.py runserver
+You're now ready to ROCK! ✨ 💅 🛳
