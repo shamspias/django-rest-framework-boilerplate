@@ -1,13 +1,20 @@
-from pathlib import Path
 import sentry_sdk
 import os
+import sys
+import dotenv
 
+from pathlib import Path
 from datetime import timedelta
 from corsheaders.defaults import default_headers
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+TESTING = sys.argv[1:2] == ['test']
+
+if not TESTING:
+    dotenv.read_dotenv(BASE_DIR)
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 
@@ -116,21 +123,22 @@ sentry_sdk.init(dsn=os.getenv('SENTRY_DSN', ''), integrations=[DjangoIntegration
 
 # CORS
 
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
-CSRF_COOKIE_HTTPONLY = os.getenv('CSRF_COOKIE_HTTPONLY', False)  # False since we will grab it via universal-cookies
-SESSION_COOKIE_HTTPONLY = os.getenv('SESSION_COOKIE_HTTPONLY', True)
+CSRF_COOKIE_SECURE = bool(os.getenv('CSRF_COOKIE_SECURE', True))
+SESSION_COOKIE_SECURE = bool(os.getenv('SESSION_COOKIE_SECURE', True))
+
+# False since we will grab it via universal-cookies
+CSRF_COOKIE_HTTPONLY = bool(os.getenv('CSRF_COOKIE_HTTPONLY', False))
+
+SESSION_COOKIE_HTTPONLY = bool(os.getenv('SESSION_COOKIE_HTTPONLY', True))
 SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', "None")
 CSRF_COOKIE_SAMESITE = os.getenv('CSRF_COOKIE_SAMESITE', "None")
-CORS_ALLOW_CREDENTIALS = os.getenv('CORS_ALLOW_CREDENTIALS', True)
-CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL', False)
+CORS_ALLOW_CREDENTIALS = bool(os.getenv('CORS_ALLOW_CREDENTIALS', True))
+CORS_ORIGIN_ALLOW_ALL = bool(os.getenv('CORS_ORIGIN_ALLOW_ALL', False))
 CSRF_COOKIE_NAME = os.getenv('CSRF_COOKIE_NAME', "csrftoken")
 
-CORS_ALLOW_ORIGINS = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000',
-]
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', CORS_ALLOW_ORIGINS)
+CORS_ALLOW_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS')
+CORS_ALLOW_ORIGINS = CORS_ALLOW_ORIGINS.split(',')
+CORS_ALLOWED_ORIGINS = CORS_ALLOW_ORIGINS
 
 CORS_ALLOW_METHODS = (
     'GET',
@@ -153,7 +161,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 # GENERALS
-APPEND_SLASH = os.getenv('APPEND_SLASH', True)
+APPEND_SLASH = bool(os.getenv('APPEND_SLASH', True))
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -161,9 +169,9 @@ APPEND_SLASH = os.getenv('APPEND_SLASH', True)
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'en-us')
 
 TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
-USE_I18N = os.getenv('USE_I18N', True)
-USE_TZ = os.getenv('USE_TZ', True)
-USE_L10N = os.getenv('USE_L10N', True)
+USE_I18N = bool(os.getenv('USE_I18N', True))
+USE_TZ = bool(os.getenv('USE_TZ', True))
+USE_L10N = bool(os.getenv('USE_L10N', True))
 LOGIN_REDIRECT_URL = '/'
 
 # Headers
