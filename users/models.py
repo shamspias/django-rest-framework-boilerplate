@@ -31,6 +31,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    phone_number = models.CharField(max_length=35, blank=True, null=True)
     profile_picture = ThumbnailerImageField('ProfilePicture', upload_to='profile_pictures/', blank=True, null=True)
 
     def get_tokens(self):
@@ -43,6 +44,23 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Customer(models.Model):
+    """
+    Model for customers
+    """
+    CHOICE_SEX = (
+        ("male", "male"),
+        ("female", "female"),
+        ("other", "other"),
+    )
+    user = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE)
+    date_of_birth = models.DateField(blank=True, null=True)
+    sex = models.CharField(max_length=10, blank=True, null=True, choices=CHOICE_SEX)
+
+    def __str__(self):
+        return self.user.email
 
 
 saved_file.connect(generate_aliases_global)

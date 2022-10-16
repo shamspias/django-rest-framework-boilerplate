@@ -5,7 +5,7 @@ from common.serializers import ThumbnailerJSONSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='src.users')
+    profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='users')
 
     class Meta:
         model = User
@@ -14,13 +14,14 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'phone_number',
             'profile_picture',
         )
         read_only_fields = ('username',)
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='src.users')
+    profile_picture = ThumbnailerJSONSerializer(required=False, allow_null=True, alias_target='users')
     tokens = serializers.SerializerMethodField()
 
     def get_tokens(self, user):
@@ -37,10 +38,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
+            'email',
+            'phone_number',
             'password',
             'first_name',
             'last_name',
-            'email',
             'tokens',
             'profile_picture',
         )
