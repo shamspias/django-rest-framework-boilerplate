@@ -1,13 +1,19 @@
 import os
-from pathlib import Path
+import sys
+import dotenv
 import sentry_sdk
 
-from datetime import timedelta
+from pathlib import Path
 from corsheaders.defaults import default_headers
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+TESTING = sys.argv[1:2] == ['test']
+
+if not TESTING:
+    dotenv.read_dotenv(BASE_DIR)
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 
@@ -24,8 +30,6 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'django_filters',
     'drf_yasg',  # another way to swagger
-    'rest_framework_simplejwt.token_blacklist',
-    'channels',
     'corsheaders',  # Cross Origin
 ]
 
@@ -111,21 +115,22 @@ sentry_sdk.init(dsn=os.getenv('SENTRY_DSN', ''), integrations=[DjangoIntegration
 
 # CORS
 
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
-CSRF_COOKIE_HTTPONLY = os.getenv('CSRF_COOKIE_HTTPONLY', False)  # False since we will grab it via universal-cookies
-SESSION_COOKIE_HTTPONLY = os.getenv('SESSION_COOKIE_HTTPONLY', True)
+CSRF_COOKIE_SECURE = bool(os.getenv('CSRF_COOKIE_SECURE', True))
+SESSION_COOKIE_SECURE = bool(os.getenv('SESSION_COOKIE_SECURE', True))
+
+# False since we will grab it via universal-cookies
+CSRF_COOKIE_HTTPONLY = bool(os.getenv('CSRF_COOKIE_HTTPONLY', False))
+
+SESSION_COOKIE_HTTPONLY = bool(os.getenv('SESSION_COOKIE_HTTPONLY', True))
 SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', "None")
 CSRF_COOKIE_SAMESITE = os.getenv('CSRF_COOKIE_SAMESITE', "None")
-CORS_ALLOW_CREDENTIALS = os.getenv('CORS_ALLOW_CREDENTIALS', True)
-CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL', False)
+CORS_ALLOW_CREDENTIALS = bool(os.getenv('CORS_ALLOW_CREDENTIALS', True))
+CORS_ORIGIN_ALLOW_ALL = bool(os.getenv('CORS_ORIGIN_ALLOW_ALL', False))
 CSRF_COOKIE_NAME = os.getenv('CSRF_COOKIE_NAME', "csrftoken")
 
-CORS_ALLOW_ORIGINS = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000',
-]
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', CORS_ALLOW_ORIGINS)
+CORS_ALLOW_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS')
+CORS_ALLOW_ORIGINS = CORS_ALLOW_ORIGINS.split(',')
+CORS_ALLOWED_ORIGINS = CORS_ALLOW_ORIGINS
 
 CORS_ALLOW_METHODS = (
     'GET',
@@ -148,7 +153,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 # GENERALS
-APPEND_SLASH = os.getenv('APPEND_SLASH', True)
+APPEND_SLASH = bool(os.getenv('APPEND_SLASH', True))
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -156,9 +161,9 @@ APPEND_SLASH = os.getenv('APPEND_SLASH', True)
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'en-us')
 
 TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
-USE_I18N = os.getenv('USE_I18N', True)
-USE_TZ = os.getenv('USE_TZ', True)
-USE_L10N = os.getenv('USE_L10N', True)
+USE_I18N = bool(os.getenv('USE_I18N', True))
+USE_TZ = bool(os.getenv('USE_TZ', True))
+USE_L10N = bool(os.getenv('USE_L10N', True))
 LOGIN_REDIRECT_URL = '/'
 
 # Headers
@@ -215,9 +220,6 @@ LOGGING = {
     },
 }
 
-# Custom user app
-AUTH_USER_MODEL = os.getenv('AUTH_USER_MODEL', 'users.User')
-
 # Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
@@ -234,7 +236,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
@@ -243,30 +244,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {'anon': '100/second', 'user': '1000/second', 'subscribe': '60/minute'},
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-}
-
-# JWT configuration
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'JTI_CLAIM': 'jti',
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 # summernote configuration
