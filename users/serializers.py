@@ -53,3 +53,15 @@ class CreateUserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('tokens',)
         extra_kwargs = {'password': {'write_only': True}}
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Customer
+        fields = (
+            'user',
+            'date_of_birth',
+            'sex'
+        )
