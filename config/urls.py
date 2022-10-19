@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
+    TokenBlacklistView,
 )
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -40,7 +41,8 @@ urlpatterns = [
                   # auth
                   path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
                   path('api/v1/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-                  path('api/v1/auth/logout/', TokenRefreshView.as_view(), name='token_refresh'),
+                  path('api/v1/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+                  path('api/v1/auth/logout/', TokenBlacklistView.as_view(), name='token_blacklisted'),
 
                   # swagger docs
                   re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0),
