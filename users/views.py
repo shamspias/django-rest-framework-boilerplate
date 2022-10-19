@@ -6,7 +6,11 @@ from rest_framework import status
 
 from users.models import User, Customer
 from users.permissions import IsUserOrReadOnly
-from users.serializers import CreateUserSerializer, UserSerializer, CustomerSerializer
+from users.serializers import (
+    CreateUserSerializer,
+    UserSerializer,
+    CustomerSerializer,
+)
 
 
 class UserViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
