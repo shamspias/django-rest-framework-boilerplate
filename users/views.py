@@ -31,21 +31,13 @@ class UserViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.Gen
             return Response(UserSerializer(self.request.user, context={'request': self.request}).data,
                             status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Wrong auth token' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomerViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class CustomerViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """
     ViewSet for customers
     """
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     permission_classes = [IsUserOrReadOnly, IsAuthenticated]
-
-    @action(detail=False, methods=['get'], url_path='info', url_name='info')
-    def get_user_data(self, instance):
-        try:
-            return Response(CustomerSerializer(self.request.user, context={'request': self.request}).data,
-                            status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
