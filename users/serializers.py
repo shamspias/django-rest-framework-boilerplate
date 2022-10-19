@@ -56,12 +56,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
     class Meta:
         model = Customer
         fields = (
-            'user',
             'date_of_birth',
             'sex'
         )
