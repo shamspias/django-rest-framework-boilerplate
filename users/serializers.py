@@ -59,6 +59,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
+            'id',
             'date_of_birth',
             'sex'
         )
