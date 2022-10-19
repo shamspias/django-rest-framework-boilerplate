@@ -1,15 +1,15 @@
 from rest_framework import viewsets, mixins
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
-from users.models import User
+from users.models import User, Customer
 from users.permissions import IsUserOrReadOnly
-from users.serializers import CreateUserSerializer, UserSerializer
+from users.serializers import CreateUserSerializer, UserSerializer, CustomerSerializer
 
 
-class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+class UserViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     """
     Creates, Updates and Retrieves - User Accounts
     """
@@ -29,6 +29,23 @@ class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Cre
     def get_user_data(self, instance):
         try:
             return Response(UserSerializer(self.request.user, context={'request': self.request}).data,
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomerViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    """
+    ViewSet for customers
+    """
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = [IsUserOrReadOnly, IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='info', url_name='info')
+    def get_user_data(self, instance):
+        try:
+            return Response(CustomerSerializer(self.request.user, context={'request': self.request}).data,
                             status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
