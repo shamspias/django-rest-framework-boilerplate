@@ -34,6 +34,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    'simple_nlp_app',
 
 ]
 
@@ -93,6 +94,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Open AI Key
+OPEN_AI_KEY = os.getenv('OPEN_AI_KEY', 'open_ai_key')
 
 # Email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')

@@ -24,6 +24,7 @@ schema_view = get_schema_view(
 )
 
 router = DefaultRouter()
+router.registry.extend(simple_app_router.registry)
 
 urlpatterns = [
                   # admin panel

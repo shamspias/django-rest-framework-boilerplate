@@ -15,8 +15,5 @@ class SimpleViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        my_string = ""
-        for i in data['body']:
-            my_string += i['type'] + ":\n" + i['body'] + "\n"
-        context = generate_questions(data['subject'], my_string)
+        context = generate_questions(data['types'], data['questions'])
         return Response(context, status=status.HTTP_201_CREATED, )

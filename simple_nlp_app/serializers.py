@@ -10,6 +10,6 @@ class QuestionsSerializers(serializers.ModelSerializer):
     class Meta:
         model = Questions
         fields = [
-            'type',
+            'types',
             'questions',
         ]
