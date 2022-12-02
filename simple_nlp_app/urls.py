@@ -5,5 +5,5 @@ from .views import (
     SimpleViewSet
 )
 
-email_replay_router = DefaultRouter()
-email_replay_router.register('apps', SimpleViewSet)
+simple_app_router = DefaultRouter()
+simple_app_router.register('apps', SimpleViewSet)
